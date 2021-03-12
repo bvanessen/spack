@@ -46,6 +46,8 @@ class Dihydrogen(CMakePackage, CudaPackage, ROCmPackage):
             description='Enables the build of shared libraries')
     variant('docs', default=False,
             description='Builds with support for building documentation')
+    variant('nccl', default=False, description='Enable NCCL collectives')
+    variant('rccl', default=False, description='Enable RCCL collectives')
 
     # Variants related to BLAS
     variant('openmp_blas', default=False,
@@ -69,6 +71,8 @@ class Dihydrogen(CMakePackage, CudaPackage, ROCmPackage):
             values=spack.variant.auto_or_any_combination_of(*cuda_arch_values))
 
     conflicts('~cuda', when='+nvshmem')
+    conflicts('+nccl', when='~cuda', msg='NCCL requires CUDA')
+    conflicts('+rccl', when='~rocm', msg='RCCL requires ROCm')
 
     depends_on('mpi')
     depends_on('catch2', type='test')
@@ -78,8 +82,11 @@ class Dihydrogen(CMakePackage, CudaPackage, ROCmPackage):
     depends_on('aluminum@0.5.0:', when='@:0.0,0.2: +al')
 
     # Add Aluminum variants
-    depends_on('aluminum +cuda +nccl +ht +cuda_rma', when='+al +cuda')
-    depends_on('aluminum +rocm +rccl +ht', when='+al +rocm')
+    depends_on('aluminum +ht', when='+al')
+    depends_on('aluminum +cuda +cuda_rma', when='+al +cuda')
+    depends_on('aluminum +nccl', when='+al +nccl')
+    depends_on('aluminum +rocm', when='+al +rocm')
+    depends_on('aluminum +rccl', when='+al +rccl')
 
     for arch in CudaPackage.cuda_arch_values:
         depends_on('aluminum cuda_arch=%s' % arch, when='+al +cuda cuda_arch=%s' % arch)

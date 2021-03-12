@@ -67,6 +67,8 @@ class Lbann(CMakePackage, CudaPackage, ROCmPackage):
     variant('python', default=True, description='Support for Python extensions (e.g. Data Reader)')
     variant('pfe', default=True, description='Python Frontend for generating and launching models')
     variant('boost', default=False, description='Enable callbacks that use Boost libraries')
+    variant('nccl', default=False, description='Enable NCCL collectives')
+    variant('rccl', default=False, description='Enable RCCL collectives')
 
     # Variant Conflicts
     conflicts('@:0.90,0.99:', when='~conduit')
@@ -77,6 +79,8 @@ class Lbann(CMakePackage, CudaPackage, ROCmPackage):
     conflicts('~cuda', when='+nvshmem')
     conflicts('+cuda', when='+rocm', msg='CUDA and ROCm support are mutually exclusive')
     conflicts('+extras', when='~pfe', msg='Python extras require the Python front end support')
+    conflicts('+nccl', when='~cuda', msg='NCCL requires CUDA')
+    conflicts('+rccl', when='~rocm', msg='RCCL requires ROCm')
 
     depends_on('cmake@3.17.0:', type='build')
 
@@ -108,8 +112,11 @@ class Lbann(CMakePackage, CudaPackage, ROCmPackage):
     depends_on('aluminum@0.5.0:', when='@:0.90,0.102: +al')
 
     # Add Aluminum variants
-    depends_on('aluminum +cuda +nccl +ht +cuda_rma', when='+al +cuda')
-    depends_on('aluminum +rocm +rccl +ht', when='+al +rocm')
+    depends_on('aluminum +ht', when='+al')
+    depends_on('aluminum +cuda +cuda_rma', when='+al +cuda')
+    depends_on('aluminum +nccl', when='+al +nccl')
+    depends_on('aluminum +rocm', when='+al +rocm')
+    depends_on('aluminum +rccl', when='+al +rccl')
 
     depends_on('dihydrogen@0.2.0:', when='@:0.90,0.102:')
     depends_on('dihydrogen +openmp', when='+dihydrogen')

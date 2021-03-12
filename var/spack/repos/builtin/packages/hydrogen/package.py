@@ -62,9 +62,13 @@ class Hydrogen(CMakePackage, CudaPackage, ROCmPackage):
             description='Use OpenMP taskloops instead of parallel for loops.')
     variant('half', default=False,
             description='Builds with support for FP16 precision data types')
+    variant('nccl', default=False, description='Enable NCCL collectives')
+    variant('rccl', default=False, description='Enable RCCL collectives')
 
     conflicts('~openmp', when='+omp_taskloops')
     conflicts('+cuda', when='+rocm', msg='CUDA and ROCm support are mutually exclusive')
+    conflicts('+nccl', when='~cuda', msg='NCCL requires CUDA')
+    conflicts('+rccl', when='~rocm', msg='RCCL requires ROCm')
 
     depends_on('cmake@3.17.0:', type='build')
     depends_on('mpi')
@@ -97,8 +101,11 @@ class Hydrogen(CMakePackage, CudaPackage, ROCmPackage):
     depends_on('aluminum@0.7.0:', when='@:1.0,1.5.2: +al')
 
     # Add Aluminum variants
-    depends_on('aluminum +cuda +nccl +ht +cuda_rma', when='+al +cuda')
-    depends_on('aluminum +rocm +rccl +ht', when='+al +rocm')
+    depends_on('aluminum +ht', when='+al')
+    depends_on('aluminum +cuda +cuda_rma', when='+al +cuda')
+    depends_on('aluminum +nccl', when='+al +nccl')
+    depends_on('aluminum +rocm', when='+al +rocm')
+    depends_on('aluminum +rccl', when='+al +rccl')
 
     for arch in CudaPackage.cuda_arch_values:
         depends_on('aluminum cuda_arch=%s' % arch, when='+al +cuda cuda_arch=%s' % arch)
