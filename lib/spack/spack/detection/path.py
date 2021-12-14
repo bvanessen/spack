@@ -20,9 +20,9 @@ from .common import (
     DetectedPackage,
     _convert_to_iterable,
     executable_prefix,
-    library_prefix,
     is_executable,
     is_readable,
+    library_prefix,
 )
 
 
