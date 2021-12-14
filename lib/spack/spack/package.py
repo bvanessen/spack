@@ -178,7 +178,7 @@ class DetectablePackageMeta(object):
     def __init__(cls, name, bases, attr_dict):
         # If a package has the executables attribute then it's
         # assumed to be detectable
-        if hasattr(cls, 'executables'):
+        if hasattr(cls, 'executables') or hasattr(cls, 'libraries'):
             @classmethod
             def determine_spec_details(cls, prefix, exes_in_prefix):
                 """Allow ``spack external find ...`` to locate installations.
