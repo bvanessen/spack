@@ -176,6 +176,11 @@ class DetectablePackageMeta(object):
     for the detection function.
     """
     def __init__(cls, name, bases, attr_dict):
+        if hasattr(cls, 'executables') and hasattr(cls, 'libraries'):
+            msg = "a package can have either an 'executables' or a 'libraries' attribute"
+            msg += " [package '{0.name}' defines both]"
+            raise ValueError(msg.format(cls))
+
         # If a package has the executables or libraries  attribute then it's
         # assumed to be detectable
         if hasattr(cls, 'executables') or hasattr(cls, 'libraries'):
@@ -186,7 +191,7 @@ class DetectablePackageMeta(object):
                 Args:
                     prefix (str): the directory containing the executables
                                   or libraries
-                    objs_in_prefix (set): the executables and libraries that
+                    objs_in_prefix (set): the executables or libraries that
                                           match the regex
 
                 Returns:
